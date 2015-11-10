@@ -15,25 +15,28 @@ if(exists('dictionary')){
   rm(dictionary)
 }
 
+
 # Read all the data files and create a dictionary out of the words
 # contained in them.
 for (name in files) {
-  new <- read.csv(paste0('althingi_tagged/', name), encoding = 'UTF-8')
-  
+  new <- read.csv(paste0('althingi_tagged/', name), encoding = 'UTF-8', colClasses = c('character', 'character', 'character'))
+  # Remove all non letter words.
+  new <- subset(new, grepl('^[[:alpha:]]+$', new$Word), select = c('Word'))
+  # Edit all words to lower case.
+  new <- data.frame(lapply(new, tolower), stringsAsFactors = FALSE)
+  # Count the occurance of each word.
+  new <- count(new, c('Word'))
+               
   if(exists('dictionary')) {
-    dictionary <- rbind(dictionary, new)
+    # Merge the existing dictionary and the new dictionary, then create a updated dictionary with the count sum.
+    dictionary <- merge(dictionary, new, by = 'Word', all = TRUE)
+    dictionary <- data.frame(dictionary$Word, rowSums(dictionary[, c(2,3)], na.rm = TRUE), stringsAsFactors = FALSE)
+    colnames(dictionary) <- c('Word', 'Count')
   } else {
     dictionary <- new
   }
 
 }
-
-# Remove all non letter words and set the words to lowercase.
-dictionary <- subset(dictionary, grepl('^[[:alpha:]]+$', dictionary$Word))
-dictionary <- lapply(dictionary, tolower)
-
-# Count the instance of each word.
-dictionary <- count(dictionary, c('Word'))
 
 # Make a permenent copy of the dictionary on the hard disk.
 write.table(dictionary, file='dictionary.csv', sep=',', fileEncoding = 'UTF-8')
