@@ -16,11 +16,10 @@ findNonWordErrors <- function(data, csv=FALSE) {
   
   # Add the correction of the word to the CorrectWord column
   lengthData <- length(data$Word)
-  for (i in 1:1000) {
+  for (i in 1:200) {
     tmpWord <- data$Word[[i]]
     
     if (!(tmpWord %in% dictionary$Word)) {
-      print(tmpWord)
       # Data frame with: [EditDist, Word] for all words in dictionary
       editDistDf <- data.frame(data.frame(matrix(adist(tolower(tmpWord), dictionary$Word), byrow=T)), dictionary$Word)
       colnames(editDistDf) <- c('EditDist', 'Word')
@@ -35,7 +34,7 @@ findNonWordErrors <- function(data, csv=FALSE) {
         maxFreq <- 0
         maxFreqWord <- ''
         for (word in minEditDistWords$Word) {
-          freq <- as.numeric(subset(dictionary, Word == word, select = c('freq')))
+          freq <- as.numeric(subset(dictionary, Word == word, select = c('Count')))
           if (freq > maxFreq) {
             maxFreq = freq
             maxFreqWord = word
