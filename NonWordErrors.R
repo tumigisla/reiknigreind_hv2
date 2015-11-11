@@ -7,19 +7,20 @@ findNonWordErrors <- function(data, csv=FALSE) {
   
   # Read in the csv file if we haven't done that already
   if (csv) {
-    data <- read.csv(data, encoding='UTF-8')
+    data <- read.csv(data, encoding='UTF-8', colClasses=c('character', 'character', 'character', 'character'))
     data <- subset(data, grepl('^[[:alpha:]]+$', data$Word))
-    data$Word <- as.character(data$Word)
-    data$CorrectWord <- as.character(data$CorrectWord)
+    data["OurGuess"] <- ""
     data$Word <- lapply(data$Word, tolower)
+    data$CorrectWord <- lapply(data$CorrectWord, tolower)
   }
   
   # Add the correction of the word to the CorrectWord column
   lengthData <- length(data$Word)
-  for (i in 1:20) {
+  for (i in 1:1000) {
     tmpWord <- data$Word[[i]]
     
-    if (!(tmpWord %in% dictionary)) {
+    if (!(tmpWord %in% dictionary$Word)) {
+      print(tmpWord)
       # Data frame with: [EditDist, Word] for all words in dictionary
       editDistDf <- data.frame(data.frame(matrix(adist(tolower(tmpWord), dictionary$Word), byrow=T)), dictionary$Word)
       colnames(editDistDf) <- c('EditDist', 'Word')
@@ -30,10 +31,10 @@ findNonWordErrors <- function(data, csv=FALSE) {
       
       # Pick the word having the most prob of showing up, if we have more than one word.
       # Otherwise we just use the word itself.
-      if (length(minEditDistWords) > 1) {
+      if (length(minEditDistWords$Word) > 1) {
         maxFreq <- 0
         maxFreqWord <- ''
-        for (word in minEditDistWords) {
+        for (word in minEditDistWords$Word) {
           freq <- as.numeric(subset(dictionary, Word == word, select = c('freq')))
           if (freq > maxFreq) {
             maxFreq = freq
@@ -44,12 +45,12 @@ findNonWordErrors <- function(data, csv=FALSE) {
       }
       else
         tmpWord <- as.character(minEditDistWords$Word)
-    }
+      }
     
     # Update the CorrectWord column in the data frame
-    data[i, 4] <- tmpWord
+    data[i, 5] <- tmpWord
   }
   return(data)
 }
 
-words <- findNonWordErrors('../althingi_errors/079.csv', TRUE)
+words <- findNonWordErrors('althingi_errors/079.csv', TRUE)

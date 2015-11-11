@@ -15,7 +15,6 @@ if(exists('dictionary')){
   rm(dictionary)
 }
 
-
 # Read all the data files and create a dictionary out of the words
 # contained in them.
 for (name in files) {
@@ -35,7 +34,6 @@ for (name in files) {
   } else {
     dictionary <- new
   }
-
 }
 
 # Make a permenent copy of the dictionary on the hard disk.
