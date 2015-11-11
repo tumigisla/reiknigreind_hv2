@@ -7,16 +7,16 @@ findNonWordErrors <- function(data, csv=FALSE) {
   
   # Read in the csv file if we haven't done that already
   if (csv) {
-    data <- read.csv(data, encoding='UTF-8')
+    data <- read.csv(data, encoding='UTF-8', colClasses=c('character', 'character', 'character', 'character'))
     data <- subset(data, grepl('^[[:alpha:]]+$', data$Word))
-    data$Word <- as.character(data$Word)
-    data$CorrectWord <- as.character(data$CorrectWord)
+    data["OurGuess"] <- ""
     data$Word <- lapply(data$Word, tolower)
+    data$CorrectWord <- lapply(data$CorrectWord, tolower)
   }
   
   # Add the correction of the word to the CorrectWord column
   lengthData <- length(data$Word)
-  for (i in 1:20) {
+  for (i in 1:5) {
     tmpWord <- data$Word[[i]]
     
     if (!(tmpWord %in% dictionary)) {
@@ -47,9 +47,9 @@ findNonWordErrors <- function(data, csv=FALSE) {
     }
     
     # Update the CorrectWord column in the data frame
-    data[i, 4] <- tmpWord
+    data[i, 5] <- tmpWord
   }
   return(data)
 }
 
-words <- findNonWordErrors('../althingi_errors/079.csv', TRUE)
+words <- findNonWordErrors('althingi_errors/079.csv', TRUE)
