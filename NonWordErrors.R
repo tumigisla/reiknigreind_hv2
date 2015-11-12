@@ -8,7 +8,6 @@ findNonWordErrors <- function(data, csv=FALSE) {
   # Read in the csv file if we haven't done that already
   if (csv) {
     data <- read.csv(data, encoding='UTF-8', colClasses=c('character', 'character', 'character', 'character'))
-    data <- subset(data, grepl('^[[:alpha:]]+$', data$Word))
     data["OurGuess"] <- ""
     data$Word <- lapply(data$Word, tolower)
     data$CorrectWord <- lapply(data$CorrectWord, tolower)
@@ -16,39 +15,53 @@ findNonWordErrors <- function(data, csv=FALSE) {
   
   # Add the correction of the word to the CorrectWord column
   lengthData <- length(data$Word)
-  for (i in 1:1000) {
-    tmpWord <- data$Word[[i]]
+  for (i in 1:lengthData) {
     
-    if (!(tmpWord %in% dictionary$Word)) {
-      print(tmpWord)
-      # Data frame with: [EditDist, Word] for all words in dictionary
-      editDistDf <- data.frame(data.frame(matrix(adist(tolower(tmpWord), dictionary$Word), byrow=T)), dictionary$Word)
-      colnames(editDistDf) <- c('EditDist', 'Word')
-      
-      # Extract words having the min edit distance.
-      minEditDist <- min(editDistDf$EditDist)
-      minEditDistWords <- subset(editDistDf, EditDist == minEditDist, select=c('Word')) 
-      
-      # Pick the word having the most prob of showing up, if we have more than one word.
-      # Otherwise we just use the word itself.
-      if (length(minEditDistWords$Word) > 1) {
-        maxFreq <- 0
-        maxFreqWord <- ''
-        for (word in minEditDistWords$Word) {
-          freq <- as.numeric(subset(dictionary, Word == word, select = c('freq')))
-          if (freq > maxFreq) {
-            maxFreq = freq
-            maxFreqWord = word
-          }
-        }
-        tmpWord <- maxFreqWord
-      }
-      else
-        tmpWord <- as.character(minEditDistWords$Word)
-      }
+    print(i)
     
-    # Update the CorrectWord column in the data frame
-    data[i, 5] <- tmpWord
+    if(exists('correct')) {
+      rm(correct)
+    }
+    
+    tmpWord <- tolower(data$Word[[i]])
+    
+    if(!grepl('^[[:alpha:]]+$', tmpWord)){
+      data[i, 5] <- tmpWord
+      next
+    }
+    
+    index <- match(tmpWord, dictionary$Word)
+    
+    if(!is.na(index)) {
+      if(dictionary[index,]$Count > 500) {
+        data[i, 5] <- tmpWord
+        next
+      }
+    }
+    
+    editDistDf <- data.frame(dictionary$Word, matrix(adist(tmpWord, dictionary$Word), byrow=T), dictionary$Count, stringsAsFactors = FALSE)
+    colnames(editDistDf) <- c('Word', 'Adist', 'Count')
+    
+    for (j in 0:2) {
+      maxFreq <- editDistDf[which(editDistDf$Adist == j),]
+      maxFreq <- maxFreq[which(maxFreq$Count == max(maxFreq$Count)),]
+      maxFreq <- data.frame(maxFreq$Word, (maxFreq$Count/(100^j)), stringsAsFactors = FALSE)
+      colnames(maxFreq) <- c('Word', 'Weight')
+      if(exists('correct')) {
+        correct <- rbind(correct, maxFreq)
+      } else {
+        correct <- maxFreq
+      }
+      
+    }
+
+    data[i, 5] <- correct[which(correct$Weight == max(correct$Weight)),]$Word
+    
+    if( data[i, 1] != data[i, 5]){
+      print(data[i, 1])
+      print(data[i, 5])
+    }
+    
   }
   return(data)
 }
