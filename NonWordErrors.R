@@ -15,6 +15,7 @@ findNonWordErrors <- function(data, csv=FALSE) {
   
   # Add the correction of the word to the CorrectWord column
   lengthData <- length(data$Word)
+<<<<<<< HEAD
   for (i in 1:lengthData) {
     
     print(i)
