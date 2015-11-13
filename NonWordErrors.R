@@ -16,13 +16,14 @@ findNonWordErrors <- function(data, csv=FALSE) {
   
   # Add the correction of the word to the CorrectWord column
   lengthData <- length(data$Word)
-  for (i in 1:200) {
+  for (i in 1:2000) {
     tmpWord <- data$Word[[i]]
     
     if (!(tmpWord %in% dictionary$Word)) {
+      print(paste0(i, ' ', tmpWord))
       # Data frame with: [EditDist, Word] for all words in dictionary
       editDistDf <- data.frame(data.frame(matrix(adist(tolower(tmpWord), dictionary$Word), byrow=T)), dictionary$Word)
-      colnames(editDistDf) <- c('EditDist', 'Word')
+      colnames(editDistDf) <- c('EditDist', 'Count')
       
       # Extract words having the min edit distance.
       minEditDist <- min(editDistDf$EditDist)
@@ -45,7 +46,6 @@ findNonWordErrors <- function(data, csv=FALSE) {
       else
         tmpWord <- as.character(minEditDistWords$Word)
       }
-    
     # Update the CorrectWord column in the data frame
     data[i, 5] <- tmpWord
   }
