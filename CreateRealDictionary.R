@@ -22,7 +22,7 @@ if(exists('dictionaryWord')){
 
 # Read all the data files and create a dictionary out of the words
 # contained in them.
-for (name in files[1:15]) {
+for (name in files) {
   new <- read.csv(paste0('althingi_tagged/', name), encoding = 'UTF-8', colClasses = c('character', 'character', 'character'))
   # Remove all non letter words.
   new <- subset(new, grepl('(^[[:alpha:]]+$)|^\\.$', new$Word), select = c('Word', 'Lemma', 'Tag'))
@@ -33,12 +33,14 @@ for (name in files[1:15]) {
   new$nextWord <- c(new$Word[2:(length(new$Word))], NA)
   newTag <- data.table(count(new, c('Tag', 'nextTag')))
   newWord <- data.table(count(new, c('Word', 'nextWord')))
+  newLink <- data.table(new$Word, new$Tag)
+  colnames(newLink) <- c('Word', 'Tag')
+  setkey(newLink)
+  newLink <- unique(newLink)
   if(exists('dictionaryWord')) {
-    str(dictionaryTag)
-    str(newTag)
     dictionaryTag <- merge(dictionaryTag, newTag, by=c('Tag', 'nextTag'), all=TRUE)
     dictionaryWord <- merge(dictionaryWord, newWord, by=c('Word', 'nextWord'), all=TRUE)
-    str(dictionaryTag)
+    dictionaryLink <- merge(dictionaryLink, newLink, by=c('Word', 'Tag'), all=TRUE)
     dictionaryTag <- data.table(dictionaryTag$Tag, dictionaryTag$nextTag, rowSums(dictionaryTag[, c(3,4), with=FALSE], na.rm = TRUE))
     dictionaryWord <- data.table(dictionaryWord$Word, dictionaryWord$nextWord, rowSums(dictionaryWord[, c(3,4), with=FALSE], na.rm = TRUE))
     colnames(dictionaryTag) <- c('Tag', 'nextTag', 'Count')
@@ -46,5 +48,10 @@ for (name in files[1:15]) {
   } else {
     dictionaryTag <- newTag
     dictionaryWord <- newWord
+    dictionaryLink <- newLink
   }
 }
+
+write.table(dictionaryLink, file='dictionarylink.csv', sep=',', fileEncoding = 'UTF-8')
+write.table(dictionaryTag, file='dictionarytag.csv', sep=',', fileEncoding = 'UTF-8')
+write.table(dictionaryWord, file='dictionaryword.csv', sep=',', fileEncoding = 'UTF-8')
