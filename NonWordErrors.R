@@ -1,3 +1,4 @@
+
 ############################################################################
 # data is the csv file to find non word errors in
 #
@@ -15,8 +16,8 @@ findNonWordErrors <- function(data, csv=FALSE) {
   
   # Add the correction of the word to the CorrectWord column
   lengthData <- length(data$Word)
-<<<<<<< HEAD
-  for (i in 1:lengthData) {
+
+  for (i in 1:5000) {
     
     print(i)
     
@@ -34,13 +35,14 @@ findNonWordErrors <- function(data, csv=FALSE) {
     index <- match(tmpWord, dictionary$Word)
     
     if(!is.na(index)) {
-      if(dictionary[index,]$Count > 500) {
+      if(dictionary[index,]$Count > 1000) {
         data[i, 5] <- tmpWord
         next
       }
     }
-    
-    editDistDf <- data.frame(dictionary$Word, matrix(adist(tmpWord, dictionary$Word), byrow=T), dictionary$Count, stringsAsFactors = FALSE)
+    dictoSub <- dictionary[which(nchar(dictionary$Word) < nchar(tmpWord) + 2, nchar(dictionary$Word) > nchar(tmpWord) - 2),]
+  
+    editDistDf <- data.frame(dictoSub$Word, matrix(adist(tmpWord, dictoSub$Word), byrow=T), dictoSub$Count, stringsAsFactors = FALSE)
     colnames(editDistDf) <- c('Word', 'Adist', 'Count')
     
     for (j in 0:2) {
