@@ -35,7 +35,7 @@ findNonWordErrors <- function(data, csv=FALSE) {
     index <- match(tmpWord, dictionary$Word)
     
     if(!is.na(index)) {
-      if(dictionary[index,]$Count > 1000) {
+      if(dictionary[index,]$Count > 500) {
         data[i, 5] <- tmpWord
         next
       }
