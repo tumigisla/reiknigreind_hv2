@@ -1,3 +1,9 @@
+
+############################################################################
+# data is the csv file to find real word errors in
+#
+# Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
+############################################################################
 findRealWordErrors <- function(data, csv=FALSE) {
   
   # Read in the csv file if we haven't done that already

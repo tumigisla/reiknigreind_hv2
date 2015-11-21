@@ -16,7 +16,7 @@ findNonWordErrors <- function(data, csv=FALSE) {
   
   # Add the correction of the word to the CorrectWord column
   lengthData <- length(data$Word)
-
+  
   for (i in 1:5000) {
     
     print(i)
@@ -56,7 +56,7 @@ findNonWordErrors <- function(data, csv=FALSE) {
       }
       
     }
-
+    
     data[i, 5] <- correct[which(correct$Weight == max(correct$Weight)),]$Word
     
     if( data[i, 1] != data[i, 5]){
