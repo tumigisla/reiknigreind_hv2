@@ -40,9 +40,8 @@ findNonWordErrors <- function(data, csv=FALSE) {
         next
       }
     }
-    dictoSub <- dictionary[which(nchar(dictionary$Word) < nchar(tmpWord) + 2, nchar(dictionary$Word) > nchar(tmpWord) - 2),]
-  
-    editDistDf <- data.frame(dictoSub$Word, matrix(adist(tmpWord, dictoSub$Word), byrow=T), dictoSub$Count, stringsAsFactors = FALSE)
+
+    editDistDf <- data.frame(dictionary$Word, matrix(adist(tmpWord, dictionary$Word), byrow=T), dictionary$Count, stringsAsFactors = FALSE)
     colnames(editDistDf) <- c('Word', 'Adist', 'Count')
     
     for (j in 0:2) {
