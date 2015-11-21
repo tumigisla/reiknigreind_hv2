@@ -3,6 +3,8 @@
 #
 # Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
 ############################################################################
+library(plyr)
+
 findRealWordErrors <- function(data, csv=FALSE) {
   
   # Read in the csv file if we haven't done that already
@@ -17,6 +19,10 @@ findRealWordErrors <- function(data, csv=FALSE) {
   sum <- 0
   
   for(i in 2:50) {
+    print(data$Word[i-1])
+    print(data$Word[i])
+    print(data$Word[i+1])
+    
     countForward <- sum(dictionaryTag$Count[dictionaryTag$Tag == data$Tag[i - 1]], na.rm = TRUE)
     countBackward <- sum(dictionaryTag$Count[dictionaryTag$nextTag == data$Tag[i + 1]], na.rm = TRUE)
     tagsForward <- dictionaryTag[which(dictionaryTag$Tag == data$Tag[i - 1]),]
@@ -29,6 +35,8 @@ findRealWordErrors <- function(data, csv=FALSE) {
     possibleTags <- data.frame(merge(tagsForward, tagsBackward, by='TagJoin'), stringsAsFactors = FALSE)
     possibleTags <- data.frame(possibleTags$TagJoin, possibleTags$Count.x + possibleTags$Count.y, stringsAsFactors = FALSE)
     colnames(possibleTags) <- c('Tag', 'Prob')
+    possibleTags <- possibleTags[order(possibleTags$Prob, decreasing = TRUE),]
+    possibleTags <- head(possibleTags, 100)
     
     countForward <- sum(dictionaryWord$Count[dictionaryWord$Word == data$Word[i - 1]], na.rm = TRUE)
     countBackward <- sum(dictionaryWord$Count[dictionaryWord$Word == data$Word[i + 1]], na.rm = TRUE)
@@ -37,23 +45,23 @@ findRealWordErrors <- function(data, csv=FALSE) {
     wordBackward <- dictionaryWord[which(dictionaryWord$nextWord == data$Word[i + 1]),]
     wordBackward$Count <- log10(wordBackward$Count/countBackward)
     
-    colnames(wordForward)[2] <- 'WordJoin'  # nextWord
+    colnames(wordForward)[2] <- 'WordJoin'   # nextWord
     colnames(wordBackward)[1] <- 'WordJoin'  # Word
     possibleWords <- data.frame(merge(wordForward, wordBackward, by='WordJoin'), stringsAsFactors = FALSE)
     possibleWords <- data.frame(possibleWords$WordJoin, possibleWords$Count.x + possibleWords$Count.y, stringsAsFactors = FALSE)
     colnames(possibleWords) <- c('Word', 'Prob')
-        
+    possibleWords <- possibleWords[order(possibleWords$Prob, decreasing = TRUE),]
+    possibleWords <- head(possibleWords, 100)
+      
     linkedDict <- dictionaryLink[which(dictionaryLink$Tag %in% possibleTags$Tag & dictionaryLink$Word %in% possibleWords$Word),]
     linkedDict['Prob'] <- ''
     linkedDictLength <- nrow(linkedDict)
     for (i in 1:linkedDictLength) {
-      print(i)
       tagProb <- possibleTags$Prob[possibleTags$Tag == linkedDict$Tag[i]]
       wordProb <- possibleWords$Prob[possibleWords$Word == linkedDict$Word[i]]
-      linkedDict$Prob <- tagProb + wordProb
+      linkedDict$Prob[i] <- tagProb + wordProb
     }
-    print(linkedDict)
-    return()
+    print(linkedDict[which(linkedDict$Prob == max(linkedDict$Prob)),])
   }
 }
 
