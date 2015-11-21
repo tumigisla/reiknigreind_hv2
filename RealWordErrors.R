@@ -3,8 +3,6 @@
 #
 # Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
 ############################################################################
-library(plyr)
-
 findRealWordErrors <- function(data, csv=FALSE) {
   
   # Read in the csv file if we haven't done that already
@@ -19,7 +17,7 @@ findRealWordErrors <- function(data, csv=FALSE) {
   sum <- 0
   
   for(i in 2:50) {
-    print(paste0(data$Word[i-1], " ", data$Word[i], " ", data$Word[i+1]))
+    print(paste0(data$Word[i-1], " ", data$Word[i], " ", data$Word[i + 1]))
     
     countForward <- sum(dictionaryTag$Count[dictionaryTag$Tag == data$Tag[i - 1]], na.rm = TRUE)
     countBackward <- sum(dictionaryTag$Count[dictionaryTag$nextTag == data$Tag[i + 1]], na.rm = TRUE)
