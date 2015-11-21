@@ -15,17 +15,15 @@ findNonWordErrors <- function(data, csv=FALSE) {
   
   data["OurGuess"] <- ""
   
-  wordData <- unique(data)
-  wordData <- data.frame(wordData)
-  colnames(wordData) <- c("Word")
-  wordData$OurGuess <- ""
+  wordData <- unique(data$Word)
   
-  for (i in 1:length(wordData$Word)){
+  for (i in 1:length(wordData)){
     print(i)
-    wordData$OurGuess[i] <- correctWord(wordData$Word[i]) 
+    guess <- correctWord(wordData[[i]])
+    data[which(data$Word == wordData[[i]]),]$OurGuess <- guess
   }
   
-  return(wordData)
+  return(data)
 }
 
 correctWord <- function(word) {
