@@ -9,15 +9,21 @@ findNonWordErrors <- function(data, csv=FALSE) {
   # Read in the csv file if we haven't done that already
   if (csv) {
     data <- read.csv(data, encoding='UTF-8', colClasses=c('character', 'character', 'character', 'character'))
-    data["OurGuess"] <- ""
     data$Word <- lapply(data$Word, tolower)
     data$CorrectWord <- lapply(data$CorrectWord, tolower)
   }
   
-  # Add the correction of the word to the CorrectWord column
-  lengthData <- length(data$Word)
+  data["OurGuess"] <- ""
   
-  for (i in 1:5000) {
+  wordData <- unique(data)
+  wordData <- data.frame(wordData)
+  colnames(wordData) <- c("Word")
+  wordData$OurGuess <- ""
+  
+  # Add the correction of the word to the CorrectWord column
+  lengthData <- length(wordData$Word)
+
+  for (i in 1:lengthData) {
     
     print(i)
     
@@ -25,10 +31,10 @@ findNonWordErrors <- function(data, csv=FALSE) {
       rm(correct)
     }
     
-    tmpWord <- tolower(data$Word[[i]])
+    tmpWord <- tolower(wordData$Word[i])
     
     if(!grepl('^[[:alpha:]]+$', tmpWord)){
-      data[i, 5] <- tmpWord
+      wordData$OurGuess[i] <- tmpWord
       next
     }
     
@@ -36,7 +42,7 @@ findNonWordErrors <- function(data, csv=FALSE) {
     
     if(!is.na(index)) {
       if(dictionary[index,]$Count > 500) {
-        data[i, 5] <- tmpWord
+        wordData$OurGuess[i] <- tmpWord
         next
       }
     }
@@ -57,15 +63,10 @@ findNonWordErrors <- function(data, csv=FALSE) {
       
     }
     
-    data[i, 5] <- correct[which(correct$Weight == max(correct$Weight)),]$Word
-    
-    if( data[i, 1] != data[i, 5]){
-      print(data[i, 1])
-      print(data[i, 5])
-    }
+    wordData$OurGuess <- correct[which(correct$Weight == max(correct$Weight)),]$Word
     
   }
-  return(data)
+  return(wordData)
 }
 
 words <- findNonWordErrors('althingi_errors/079.csv', TRUE)
