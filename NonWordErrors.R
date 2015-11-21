@@ -20,53 +20,54 @@ findNonWordErrors <- function(data, csv=FALSE) {
   colnames(wordData) <- c("Word")
   wordData$OurGuess <- ""
   
-  # Add the correction of the word to the CorrectWord column
-  lengthData <- length(wordData$Word)
-
-  for (i in 1:lengthData) {
-    
+  for (i in 1:length(wordData$Word)){
     print(i)
-    
-    if(exists('correct')) {
-      rm(correct)
-    }
-    
-    tmpWord <- tolower(wordData$Word[i])
-    
-    if(!grepl('^[[:alpha:]]+$', tmpWord)){
-      wordData$OurGuess[i] <- tmpWord
-      next
-    }
-    
-    index <- match(tmpWord, dictionary$Word)
-    
-    if(!is.na(index)) {
-      if(dictionary[index,]$Count > 500) {
-        wordData$OurGuess[i] <- tmpWord
-        next
-      }
-    }
+    wordData$OurGuess[i] <- correctWord(wordData$Word[i]) 
+  }
+  
+  return(wordData)
+}
 
-    editDistDf <- data.frame(dictionary$Word, matrix(adist(tmpWord, dictionary$Word), byrow=T), dictionary$Count, stringsAsFactors = FALSE)
-    colnames(editDistDf) <- c('Word', 'Adist', 'Count')
-    
-    for (j in 0:2) {
-      maxFreq <- editDistDf[which(editDistDf$Adist == j),]
-      maxFreq <- maxFreq[which(maxFreq$Count == max(maxFreq$Count)),]
-      maxFreq <- data.frame(maxFreq$Word, (maxFreq$Count/(100^j)), stringsAsFactors = FALSE)
-      colnames(maxFreq) <- c('Word', 'Weight')
-      if(exists('correct')) {
-        correct <- rbind(correct, maxFreq)
-      } else {
-        correct <- maxFreq
-      }
-      
+correctWord <- function(word) {
+  
+  word <- tolower(word)
+  
+  if(!grepl('^[[:alpha:]]+$', word)){
+    return(word)
+  }
+  size <- nchar(word)
+  
+  currentDictionary <- get(paste0("dictionary", size))
+  
+  index <- match(word, currentDictionary$Word)
+  if(!is.na(index)) {
+    if(currentDictionary[index,]$Count > 500) {
+      return(word)
     }
-    
-    wordData$OurGuess <- correct[which(correct$Weight == max(correct$Weight)),]$Word
+  } else {
+    currentDictionary = rbind(currentDictionary, data.frame(Word = word, Count = 100, stringsAsFactors = FALSE))
+  }
+  
+  editDistDf <- data.frame(currentDictionary$Word, matrix(adist(word, currentDictionary$Word), byrow=T), currentDictionary$Count, stringsAsFactors = FALSE)
+  colnames(editDistDf) <- c('Word', 'Adist', 'Count')
+  
+  for (j in 0:2) {
+    maxFreq <- editDistDf[which(editDistDf$Adist == j),]
+    maxFreq <- maxFreq[which(maxFreq$Count == max(maxFreq$Count)),]
+    maxFreq <- data.frame(maxFreq$Word, (maxFreq$Count/(100^j)), stringsAsFactors = FALSE)
+    colnames(maxFreq) <- c('Word', 'Weight')
+    if(exists('correct')) {
+      correct <- rbind(correct, maxFreq)
+    } else {
+      correct <- maxFreq
+    }
     
   }
-  return(wordData)
+  
+  guess <- correct[which(correct$Weight == max(correct$Weight)),]$Word
+  print(word)
+  print(guess)
+  return(guess)
 }
 
 words <- findNonWordErrors('althingi_errors/079.csv', TRUE)
