@@ -12,42 +12,51 @@ findRealWordErrors <- function(data, csv=FALSE) {
     data$Word <- lapply(data$Word, tolower)
     data$CorrectWord <- lapply(data$CorrectWord, tolower)
   }
-
-  data <- subset(data, grepl('(^[[:alpha:]]+$)|^\\.$', data$Word), select = colnames(data))
   
-  for(i in 2:500) {
-    #start <- dictionaryTag[dictionaryTag$Tag == data$Tag[i - 1] & dictionaryTag$nextTag == data$Tag[i],]$Count
-    #finish <- dictionaryTag[dictionaryTag$Tag == data$Tag[i] & dictionaryTag$nextTag == data$Tag[i + 1],]$Count
-    #countA <- sum(dictionaryTag$Count[dictionaryTag$Tag == data$Tag[i - 1]], na.rm = TRUE)
-    #countB <- sum(dictionaryTag$Count[dictionaryTag$nextTag == data$Tag[i + 1]], na.rm = TRUE)
+  data <- subset(data, grepl('(^[[:alpha:]]+$)|^\\.$', data$Word), select = colnames(data))
+  sum <- 0
+  
+  for(i in 2:50) {
+    countForward <- sum(dictionaryTag$Count[dictionaryTag$Tag == data$Tag[i - 1]], na.rm = TRUE)
+    countBackward <- sum(dictionaryTag$Count[dictionaryTag$nextTag == data$Tag[i + 1]], na.rm = TRUE)
+    tagsForward <- dictionaryTag[which(dictionaryTag$Tag == data$Tag[i - 1]),]
+    tagsForward$Count <- log10(tagsForward$Count/countForward)
+    tagsBackward <- dictionaryTag[which(dictionaryTag$nextTag == data$Tag[i + 1]),]
+    tagsBackward$Count <- log10(tagsBackward$Count/countBackward)
     
-    countAB <- dictionaryTag[which(dictionaryTag$nextTag == data$Tag[i]),]$Count
-    countBC <- dictionaryTag[which(dictionaryTag$Tag == data$Tag[i-1]),]$Count
+    colnames(tagsForward)[2] <- 'TagJoin'   # nextTag
+    colnames(tagsBackward)[1] <- 'TagJoin'  # Tag
+    possibleTags <- data.frame(merge(tagsForward, tagsBackward, by='TagJoin'))
+    possibleTags <- data.frame(possibleTags$TagJoin, possibleTags$Count.x + possibleTags$Count.y)
+    colnames(possibleTags) <- c('Tag', 'Prob')
     
-    countAx <- dictionaryWord[which(dictionaryWord$nextWord == data$Word[i]),]$Count
-    countxC <- dictionaryWord[which(dictionaryWord$Word == data$Word[i]),]$Count
+    countForward <- sum(dictionaryWord$Count[dictionaryWord$Word == data$Word[i - 1]], na.rm = TRUE)
+    countBackward <- sum(dictionaryWord$Count[dictionaryWord$Word == data$Word[i + 1]], na.rm = TRUE)
+    wordForward <- dictionaryWord[which(dictionaryWord$Word == data$Word[i - 1]),]
+    wordForward$Count <- log10(wordForward$Count/countForward)
+    wordBackward <- dictionaryWord[which(dictionaryWord$Word == data$Word[i + 1]),]
+    wordBackward$Count <- log10(wordBackward$Count/countBackward)
     
-    prob <- (countAB / countAx) * (countBC / countxC)
+    colnames(wordForward)[2] <- 'WordJoin'  # nextWord
+    colnames(wordBackward)[1] <- 'WordJoin'  # Word
+    possibleWords <- data.frame(merge(wordForward, wordBackward, by='WordJoin'))
+    possibleWords <- data.frame(possibleWords$WordJoin, possibleWords$Count.x + possibleWords$Count.y)
+    colnames(possibleWords) <- c('Word', 'Prob')
     
-    print(prob)
+    print(possibleWords)
+    return()
     
-    #if (countA == 0 || countB == 0) {
-    #  print(data$Tag[i - 1])
-    #  print(countA)
-    #  print(data$Tag[i + 1])
-    #  print(countB)
-    #}
-    #propAB <- start/countA
-    #propBC <- finish/countB
-    #propABWord <- startWord/countAWord
-    #propBCWord <- finishWord/countBWord
-    
-    #propAB <- propAB / propBC
-    #propBC <- propABWord / propBCWord
-    
-    #prop <- propAB * propBC
-    
-    #print(prop)
+    linkedDict <- dictionaryLink[which(dictionaryLink$Tag %in% possibleTags$Tag & dictionaryLink$Word %in% possibleWords$Word),]
+    linkedDict['Prob'] <- ''
+    for (i in 1:length(linkedDict)) {
+      tagProb <- possibleTags$Prob[possibleTags$Tag == linkedDict$Tag[i]]
+      print(tagProb)
+      wordProb <- possibleWords$Prob[possibleWords$Word == linkedDict$Word[i]]
+      print(wordProb)
+      linkedDict$Prob <- tagProb + wordProb
+    }
+    #print(linkedDict)
+    return()
   }
 }
 
