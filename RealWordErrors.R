@@ -19,9 +19,7 @@ findRealWordErrors <- function(data, csv=FALSE) {
   sum <- 0
   
   for(i in 2:50) {
-    print(data$Word[i-1])
-    print(data$Word[i])
-    print(data$Word[i+1])
+    print(paste0(data$Word[i-1], " ", data$Word[i], " ", data$Word[i+1]))
     
     countForward <- sum(dictionaryTag$Count[dictionaryTag$Tag == data$Tag[i - 1]], na.rm = TRUE)
     countBackward <- sum(dictionaryTag$Count[dictionaryTag$nextTag == data$Tag[i + 1]], na.rm = TRUE)
@@ -52,13 +50,16 @@ findRealWordErrors <- function(data, csv=FALSE) {
     colnames(possibleWords) <- c('Word', 'Prob')
     possibleWords <- possibleWords[order(possibleWords$Prob, decreasing = TRUE),]
     possibleWords <- head(possibleWords, 100)
-      
+    
     linkedDict <- dictionaryLink[which(dictionaryLink$Tag %in% possibleTags$Tag & dictionaryLink$Word %in% possibleWords$Word),]
     linkedDict['Prob'] <- ''
     linkedDictLength <- nrow(linkedDict)
     for (i in 1:linkedDictLength) {
       tagProb <- possibleTags$Prob[possibleTags$Tag == linkedDict$Tag[i]]
       wordProb <- possibleWords$Prob[possibleWords$Word == linkedDict$Word[i]]
+      prob <- tagProb + wordProb
+      if (substr(linkedDict$Tag, 1, 1) != substr(data$Tag[i], 1, 1))
+        prob <- prob + log10(0.1)
       linkedDict$Prob[i] <- tagProb + wordProb
     }
     print(linkedDict[which(linkedDict$Prob == max(linkedDict$Prob)),])
