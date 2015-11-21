@@ -26,36 +26,33 @@ findRealWordErrors <- function(data, csv=FALSE) {
     
     colnames(tagsForward)[2] <- 'TagJoin'   # nextTag
     colnames(tagsBackward)[1] <- 'TagJoin'  # Tag
-    possibleTags <- data.frame(merge(tagsForward, tagsBackward, by='TagJoin'))
-    possibleTags <- data.frame(possibleTags$TagJoin, possibleTags$Count.x + possibleTags$Count.y)
+    possibleTags <- data.frame(merge(tagsForward, tagsBackward, by='TagJoin'), stringsAsFactors = FALSE)
+    possibleTags <- data.frame(possibleTags$TagJoin, possibleTags$Count.x + possibleTags$Count.y, stringsAsFactors = FALSE)
     colnames(possibleTags) <- c('Tag', 'Prob')
     
     countForward <- sum(dictionaryWord$Count[dictionaryWord$Word == data$Word[i - 1]], na.rm = TRUE)
     countBackward <- sum(dictionaryWord$Count[dictionaryWord$Word == data$Word[i + 1]], na.rm = TRUE)
     wordForward <- dictionaryWord[which(dictionaryWord$Word == data$Word[i - 1]),]
     wordForward$Count <- log10(wordForward$Count/countForward)
-    wordBackward <- dictionaryWord[which(dictionaryWord$Word == data$Word[i + 1]),]
+    wordBackward <- dictionaryWord[which(dictionaryWord$nextWord == data$Word[i + 1]),]
     wordBackward$Count <- log10(wordBackward$Count/countBackward)
     
     colnames(wordForward)[2] <- 'WordJoin'  # nextWord
     colnames(wordBackward)[1] <- 'WordJoin'  # Word
-    possibleWords <- data.frame(merge(wordForward, wordBackward, by='WordJoin'))
-    possibleWords <- data.frame(possibleWords$WordJoin, possibleWords$Count.x + possibleWords$Count.y)
+    possibleWords <- data.frame(merge(wordForward, wordBackward, by='WordJoin'), stringsAsFactors = FALSE)
+    possibleWords <- data.frame(possibleWords$WordJoin, possibleWords$Count.x + possibleWords$Count.y, stringsAsFactors = FALSE)
     colnames(possibleWords) <- c('Word', 'Prob')
-    
-    print(possibleWords)
-    return()
-    
+        
     linkedDict <- dictionaryLink[which(dictionaryLink$Tag %in% possibleTags$Tag & dictionaryLink$Word %in% possibleWords$Word),]
     linkedDict['Prob'] <- ''
-    for (i in 1:length(linkedDict)) {
+    linkedDictLength <- nrow(linkedDict)
+    for (i in 1:linkedDictLength) {
+      print(i)
       tagProb <- possibleTags$Prob[possibleTags$Tag == linkedDict$Tag[i]]
-      print(tagProb)
       wordProb <- possibleWords$Prob[possibleWords$Word == linkedDict$Word[i]]
-      print(wordProb)
       linkedDict$Prob <- tagProb + wordProb
     }
-    #print(linkedDict)
+    print(linkedDict)
     return()
   }
 }
