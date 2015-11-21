@@ -1,4 +1,3 @@
-
 ############################################################################
 # data is the csv file to find real word errors in
 #
@@ -17,21 +16,39 @@ findRealWordErrors <- function(data, csv=FALSE) {
   data <- subset(data, grepl('(^[[:alpha:]]+$)|^\\.$', data$Word), select = colnames(data))
   
   for(i in 2:500) {
-    start <- dictionaryTag[dictionaryTag$Tag == data$Tag[i - 1] & dictionaryTag$nextTag == data$Tag[i],]$Count
-    finish <- dictionaryTag[dictionaryTag$Tag == data$Tag[i] & dictionaryTag$nextTag == data$Tag[i + 1],]$Count
-    countA <- sum(dictionaryTag$Count[dictionaryTag$Tag == data$Tag[i - 1]], na.rm = TRUE)
-    countB <- sum(dictionaryTag$Count[dictionaryTag$nextTag == data$Tag[i + 1]], na.rm = TRUE)
-    if (countA == 0 || countB == 0) {
-      print(data$Tag[i - 1])
-      print(countA)
-      print(data$Tag[i + 1])
-      print(countB)
-    }
-    propA <- start/countA
-    propB <- finish/countB
-    print(propA * propB)
+    #start <- dictionaryTag[dictionaryTag$Tag == data$Tag[i - 1] & dictionaryTag$nextTag == data$Tag[i],]$Count
+    #finish <- dictionaryTag[dictionaryTag$Tag == data$Tag[i] & dictionaryTag$nextTag == data$Tag[i + 1],]$Count
+    #countA <- sum(dictionaryTag$Count[dictionaryTag$Tag == data$Tag[i - 1]], na.rm = TRUE)
+    #countB <- sum(dictionaryTag$Count[dictionaryTag$nextTag == data$Tag[i + 1]], na.rm = TRUE)
+    
+    countAB <- dictionaryTag[which(dictionaryTag$nextTag == data$Tag[i]),]$Count
+    countBC <- dictionaryTag[which(dictionaryTag$Tag == data$Tag[i-1]),]$Count
+    
+    countAx <- dictionaryWord[which(dictionaryWord$nextWord == data$Word[i]),]$Count
+    countxC <- dictionaryWord[which(dictionaryWord$Word == data$Word[i]),]$Count
+    
+    prob <- (countAB / countAx) * (countBC / countxC)
+    
+    print(prob)
+    
+    #if (countA == 0 || countB == 0) {
+    #  print(data$Tag[i - 1])
+    #  print(countA)
+    #  print(data$Tag[i + 1])
+    #  print(countB)
+    #}
+    #propAB <- start/countA
+    #propBC <- finish/countB
+    #propABWord <- startWord/countAWord
+    #propBCWord <- finishWord/countBWord
+    
+    #propAB <- propAB / propBC
+    #propBC <- propABWord / propBCWord
+    
+    #prop <- propAB * propBC
+    
+    #print(prop)
   }
-  
 }
 
 words <- findRealWordErrors('althingi_errors/079.csv', TRUE)
