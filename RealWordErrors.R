@@ -20,26 +20,45 @@ findRealWordErrors <- function(data, csv=FALSE) {
   sum <- 0
   
   dictionaryTag <- data.table(dictionaryTag)
-  dictionaryWord <- data.table(dictionaryWord)
+  dictionaryLemma <- data.table(dictionaryLemma)
+  dictionaryLink <- data.table(dictionaryLink)
   
   for(i in 2:50) {
-    print(data$Word[i-1])
-    print(data$Word[i])
-    print(data$Word[i+1])
+    data$Word[i + 1] <- correctWord(data$Word[i + 1])
+    print(paste0(data$Word[i-1], " ", data$Word[i], " ", data$Word[i + 1]))
+    before <- dictionaryLemma[which(dictionaryLemma$Lemma == data$Lemma[i - 1] & dictionaryLemma$nextLemma == data$Lemma[i]),]$Count
+    after <- dictionaryLemma[which(dictionaryLemma$Lemma == data$Lemma[i] & dictionaryLemma$nextLemma == data$Lemma[i + 1]),]$Count
+    
+    if(length(before) & length(after)) {
+      if(before > 10 & after > 10) {
+        next
+      }
+    }
     
     possibleTags <- findCandidates(dictionaryTag, data$Tag[i - 1], data$Tag[i + 1])
-    possibleWords <- findCandidates(dictionaryWord, data$Word[i - 1], data$Word[i + 1])
+    possibleTags <- possibleTags[order(possibleTags$Prob, decreasing = TRUE),]
+    possibleTags <- head(possibleTags, 100)
+    possibleLemmas <- findCandidates(dictionaryLemma, data$Lemma[i - 1], data$Lemma[i + 1])
 
-    linkedDict <- dictionaryLink[which(dictionaryLink$Tag %in% possibleTags$Candidates & dictionaryLink$Word %in% possibleWords$Candidates),]
+    linkedDict <- dictionaryLink[which(dictionaryLink$Tag %in% possibleTags$Candidates & dictionaryLink$Lemma %in% possibleLemmas$Candidates),]
     linkedDict['Prob'] <- ''
     linkedDictLength <- nrow(linkedDict)
-
-    for (i in 1:linkedDictLength) {
-      tagProb <- possibleTags$Prob[possibleTags$Candidates == linkedDict$Tag[i]]
-      wordProb <- possibleWords$Prob[possibleWords$Candidates == linkedDict$Word[i]]
-      linkedDict$Prob[i] <- tagProb + wordProb
+    for (j in 1:linkedDictLength) {
+      tagProb <- possibleTags$Prob[possibleTags$Candidates == linkedDict$Tag[j]]
+      lemmaProb <- possibleLemmas$Prob[possibleLemmas$Candidates == linkedDict$Lemma[j]]
+      prob <- tagProb + lemmaProb
+      if (substr(linkedDict$Tag, 1, 1) != substr(data$Tag[i], 1, 1)) {
+        prob <- prob + log10(0.1)
+      }
+      dist <- adist(linkedDict$Word[j], data$Word[i])[[1]]
+      if (dist > 2) {
+        prob <- prob - 15
+      } else {
+        prob <- prob + log10(1/(100^dist))
+      }
+      linkedDict$Prob[j] <- prob
     }
-    print(linkedDict[which(linkedDict$Prob == max(linkedDict$Prob)),])
+    data$Word[i] <- linkedDict[which(linkedDict$Prob == max(linkedDict$Prob)),]$Word
   }
 }
 
@@ -54,11 +73,8 @@ findCandidates <- function(dictionary, preciding, following) {
   colnames(backward)[1] <- 'join'
 
   candidates <- data.table(merge(forward, backward, by='join'))
-  str(candidates)
   candidates <- data.table(candidates$join, candidates$Count.x + candidates$Count.y)
   colnames(candidates) <- c('Candidates', 'Prob')
-  candidates <- candidates[order(candidates$Prob, decreasing=TRUE),]
-  candidates <- head(candidates, 100)
   return(candidates)
 }
 
