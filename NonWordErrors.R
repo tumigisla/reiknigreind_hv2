@@ -41,6 +41,8 @@ correctWord <- function(word) {
   if(!is.na(index)) {
     if(currentDictionary[index,]$Count > 500) {
       return(word)
+    } else if(currentDictionary[index,]$Count < 100) {
+      currentDictionary[index,]$Count = 100
     }
   } else {
     currentDictionary = rbind(currentDictionary, data.frame(Word = word, Count = 100, stringsAsFactors = FALSE))
@@ -62,7 +64,7 @@ correctWord <- function(word) {
     
   }
   
-  guess <- correct[which(correct$Weight == max(correct$Weight)),]$Word
+  guess <- correct[which(correct$Weight == max(correct$Weight)),]$Word[1]
   print(word)
   print(guess)
   return(guess)
