@@ -26,13 +26,14 @@ findRealWordErrors <- function(data, csv=FALSE) {
   dictionaryLink <- data.table(dictionaryLink)
   setkey(dictionaryLink)
 
-  for(i in 2:10) {
+  for(i in 4025:4027) {
     # Set word to check to lowercase, since dictionaries in lower case.
     data$Word[i + 1] <- tolower(data$Word[i + 1])
     data$Lemma[i + 1] <- tolower(data$Lemma[i + 1])
     # We look at the word, along with the previous word and the next word.
     # Call them ABC.
-
+    print(i)
+    print(paste0(data$Word[i-1], " ", data$Word[i], " ", data$Word[i + 1]))
     # Look-ahead and correct any non-word error in the next word.
     data[i + 1,] <- findNonWordError(data[i + 1,])
     # Check how often AB appear together.
@@ -54,14 +55,18 @@ findRealWordErrors <- function(data, csv=FALSE) {
     possibleTags <- head(possibleTags, 100)
     # Find all candidate lemmas by using the lemmas of A and C and seeing which lemmas appear between them in the dictionary.
     possibleLemmas <- findCandidates(dictionaryLemma, data$Lemma[i - 1], data$Lemma[i + 1])
-
     # Find all word, tag, lemma entries that match the candidate lemmas and tags.
     linkedDict <- dictionaryLink[which(dictionaryLink$Tag %in% possibleTags$Candidates & dictionaryLink$Lemma %in% possibleLemmas$Candidates),]
     linkedDict['Prob'] <- ''
     linkedDictLength <- nrow(linkedDict)
+    if (linkedDictLength == 0) {
+      data$OurGuess[i] <- data$Word[i]
+      next
+    }
     # Save the lexical class of the current word.
     class <- substr(data$Tag[i], 1, 1)
     # Calculate the likelyhood of each candidate.
+    print(linkedDictLength)
     for (j in 1:linkedDictLength) {
       # Using log-likelyhood. Plus the likelyhood of the candidate having the given tag and lemma.
       tagProb <- possibleTags$Prob[possibleTags$Candidates == linkedDict$Tag[j]]
