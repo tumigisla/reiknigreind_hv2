@@ -25,10 +25,8 @@ findRealWordErrors <- function(data, csv=FALSE) {
   dictionaryLemma <- data.table(dictionaryLemma)
   dictionaryLink <- data.table(dictionaryLink)
   setkey(dictionaryLink)
-  
-  print(nrow(data))
-  return()
-  for(i in 2:5002) {
+
+  for(i in 2:10) {
     # Set word to check to lowercase, since dictionaries in lower case.
     data$Word[i + 1] <- tolower(data$Word[i + 1])
     data$Lemma[i + 1] <- tolower(data$Lemma[i + 1])

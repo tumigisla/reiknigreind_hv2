@@ -60,3 +60,4 @@ for (i in 1:max(nchar(dictionary$Word))) {
 # and real word errors.
 source('NonWordErrors.R')
 source('RealWordErrors.R')
+words <- findRealWordErrors('althingi_errors/079.csv', TRUE)
