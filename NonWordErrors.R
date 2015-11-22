@@ -66,5 +66,3 @@ correctWord <- function(word) {
 
   return(guess)
 }
-
-words <- findNonWordErrors('althingi_errors/095.csv', TRUE)
