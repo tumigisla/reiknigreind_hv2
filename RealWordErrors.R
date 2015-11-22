@@ -22,7 +22,9 @@ findRealWordErrors <- function(data, csv=FALSE) {
   dictionaryLemma <- data.table(dictionaryLemma)
   dictionaryLink <- data.table(dictionaryLink)
   
-  for(i in 90:100) {
+  for(i in 2:100) {
+    data$Word[i + 1] <- tolower(data$Word[i + 1])
+    data$Lemma[i + 1] <- tolower(data$Lemma[i + 1])
     data[i + 1,] <- findNonWordError(data[i + 1,])
     print(paste0(data$Word[i-1], " ", data$Word[i], " ", data$Word[i + 1]))
     before <- dictionaryLemma[which(dictionaryLemma$Lemma == data$Lemma[i - 1] & dictionaryLemma$nextLemma == data$Lemma[i]),]$Count
@@ -44,12 +46,10 @@ findRealWordErrors <- function(data, csv=FALSE) {
     linkedDict['Prob'] <- ''
     linkedDictLength <- nrow(linkedDict)
     class <- substr(data$Tag[i], 1, 1)
-    print(class)
     for (j in 1:linkedDictLength) {
       tagProb <- possibleTags$Prob[possibleTags$Candidates == linkedDict$Tag[j]]
       lemmaProb <- possibleLemmas$Prob[possibleLemmas$Candidates == linkedDict$Lemma[j]]
       prob <- tagProb + lemmaProb
-      print(linkedDict$Tag[j], 1, 1)
       if (substr(linkedDict$Tag[j], 1, 1) != class) {
         prob <- prob + log10(0.1)
       }
