@@ -1,3 +1,21 @@
+############################################################################
+# This file handles all the preparation, i.e. importing libraries, generating
+# dictionaries and then runs the program itself.
+# This is the only file you need to source.
+#
+# Make sure you set the working directory to the source file location!
+#
+# Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
+############################################################################
+
+# Package manager. Installs required packages if they're not already installed.
+pacMan <- function() {
+  packages <- c("data.table", "plyr")
+  if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+    install.packages(setdiff(packages, rownames(installed.packages())))  
+  }
+}
+
 # TRUE iff object exists in Global Environment
 objectExists <- function(object) {
   return(exists(as.character(substitute(object))))
@@ -35,6 +53,7 @@ runSpellingCorrector <- function() {
 }
 
 main <- function() {
+  pacMan()
   generateDicts()
   runSpellingCorrector()
 }

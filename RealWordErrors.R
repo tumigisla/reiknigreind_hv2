@@ -1,11 +1,12 @@
 ############################################################################
-# data is the csv file to find real word errors in
+# Corrects real word errors in a .csv file.
 #
 # Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
 ############################################################################
 library(plyr)
 library(data.table)
 
+# data is the csv file to find real word errors in
 findRealWordErrors <- function(data, csv=FALSE) {
   
   # Read in the csv file if we haven't done that already

@@ -1,8 +1,10 @@
 ############################################################################
-# data is the csv file to find non word errors in
+# Corrects non word errors in a .csv file.
 #
 # Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
 ############################################################################
+
+# data is the csv file to find non word errors in
 findNonWordErrors <- function(data, csv=FALSE) {
   
   # Read in the csv file if we haven't done that already
