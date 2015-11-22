@@ -4,6 +4,8 @@
 #
 # Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
 ############################################################################
+library(data.table)
+
 findNonWordErrors <- function(data, csv=FALSE) {
   
   # Read in the csv file if we haven't done that already
@@ -16,7 +18,7 @@ findNonWordErrors <- function(data, csv=FALSE) {
   data["OurGuess"] <- ""
   
   wordData <- unique(data$Word)
-  
+  print(length(wordData))
   for (i in 1:length(wordData)){
     print(i)
     guess <- correctWord(wordData[[i]])
@@ -54,7 +56,7 @@ correctWord <- function(word) {
   for (j in 0:2) {
     maxFreq <- editDistDf[which(editDistDf$Adist == j),]
     maxFreq <- maxFreq[which(maxFreq$Count == max(maxFreq$Count)),]
-    maxFreq <- data.frame(maxFreq$Word, (maxFreq$Count/(100^j)), stringsAsFactors = FALSE)
+    maxFreq <- data.frame(maxFreq$Word, (maxFreq$Count/(50^j)), stringsAsFactors = FALSE)
     colnames(maxFreq) <- c('Word', 'Weight')
     if(exists('correct')) {
       correct <- rbind(correct, maxFreq)
@@ -69,4 +71,4 @@ correctWord <- function(word) {
   return(guess)
 }
 
-words <- findNonWordErrors('althingi_errors/080.csv', TRUE)
+words <- findNonWordErrors('althingi_errors/095.csv', TRUE)

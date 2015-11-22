@@ -22,7 +22,7 @@ findRealWordErrors <- function(data, csv=FALSE) {
   dictionaryLemma <- data.table(dictionaryLemma)
   dictionaryLink <- data.table(dictionaryLink)
   
-  for(i in 2:100) {
+  for(i in 2:nrow(data)) {
     data$Word[i + 1] <- tolower(data$Word[i + 1])
     data$Lemma[i + 1] <- tolower(data$Lemma[i + 1])
     data[i + 1,] <- findNonWordError(data[i + 1,])
@@ -57,7 +57,7 @@ findRealWordErrors <- function(data, csv=FALSE) {
       if (dist > 2) {
         prob <- prob - 15
       } else {
-        prob <- prob + log10(1/(100^dist))
+        prob <- prob + log10(1/(50^dist))
       }
       linkedDict$Prob[j] <- prob
     }
