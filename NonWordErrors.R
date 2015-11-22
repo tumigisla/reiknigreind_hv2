@@ -65,9 +65,8 @@ correctWord <- function(word) {
   }
   
   guess <- correct[which(correct$Weight == max(correct$Weight)),]$Word[1]
-  print(word)
-  print(guess)
+
   return(guess)
 }
 
-words <- findNonWordErrors('althingi_errors/079.csv', TRUE)
+words <- findNonWordErrors('althingi_errors/083.csv', TRUE)
