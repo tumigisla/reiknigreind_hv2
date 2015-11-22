@@ -44,8 +44,6 @@ if (!objectExists(dictionaryLemma) |
     if (!objectExists(dictionaryLink)) dictionaryLink <- read.csv('dictionarylink.csv', stringsAsFactors = FALSE, encoding='UTF-8')
   }
 }
-dictionaryLemma <- apply(dictionaryLemma, 1, function(e) { iconv(e, from = "UTF-8", to="ASCII", sub="byte")})
-dictionaryLemma <- data.frame(t(dictionaryLemma), stringsAsFactors = FALSE)
 
 # Create dictionaries for each word length range faster non-word corrections.
 for (i in 1:max(nchar(dictionary$Word))) {
