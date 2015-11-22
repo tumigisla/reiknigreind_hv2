@@ -3,13 +3,9 @@
 #
 # Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
 ############################################################################
-<<<<<<< HEAD
 library(data.table)
 
-=======
-
 # data is the csv file to find non word errors in
->>>>>>> origin/master
 findNonWordErrors <- function(data, csv=FALSE) {
   
   # Read in the csv file if we haven't done that already

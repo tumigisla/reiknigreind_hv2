@@ -1,12 +1,11 @@
 ############################################################################
-# Corrects real word errors in a .csv file.
+# data is the csv file to find real word errors in
 #
 # Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
 ############################################################################
 library(plyr)
 library(data.table)
 
-# data is the csv file to find real word errors in
 findRealWordErrors <- function(data, csv=FALSE) {
   
   # Read in the csv file if we haven't done that already
@@ -27,6 +26,7 @@ findRealWordErrors <- function(data, csv=FALSE) {
     data$Word[i + 1] <- tolower(data$Word[i + 1])
     data$Lemma[i + 1] <- tolower(data$Lemma[i + 1])
     data[i + 1,] <- findNonWordError(data[i + 1,])
+    print(paste0(data$Word[i-1], " ", data$Word[i], " ", data$Word[i + 1]))
     before <- dictionaryLemma[which(dictionaryLemma$Lemma == data$Lemma[i - 1] & dictionaryLemma$nextLemma == data$Lemma[i]),]$Count
     after <- dictionaryLemma[which(dictionaryLemma$Lemma == data$Lemma[i] & dictionaryLemma$nextLemma == data$Lemma[i + 1]),]$Count
     
@@ -102,4 +102,4 @@ findNonWordError <- function(word) {
   return(word)
 }
 
-words <- findRealWordErrors('althingi_errors/095.csv', TRUE)
+words <- findRealWordErrors('althingi_errors/079.csv', TRUE)
