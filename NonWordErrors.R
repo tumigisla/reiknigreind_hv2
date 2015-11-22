@@ -1,11 +1,15 @@
-
 ############################################################################
-# data is the csv file to find non word errors in
+# Corrects non word errors in a .csv file.
 #
 # Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
 ############################################################################
+<<<<<<< HEAD
 library(data.table)
 
+=======
+
+# data is the csv file to find non word errors in
+>>>>>>> origin/master
 findNonWordErrors <- function(data, csv=FALSE) {
   
   # Read in the csv file if we haven't done that already
@@ -41,7 +45,7 @@ correctWord <- function(word) {
   
   index <- match(word, currentDictionary$Word)
   if(!is.na(index)) {
-    if(currentDictionary[index,]$Count > 500) {
+    if(currentDictionary[index,]$Count > 1000) {
       return(word)
     } else if(currentDictionary[index,]$Count < 100) {
       currentDictionary[index,]$Count = 100
@@ -63,7 +67,6 @@ correctWord <- function(word) {
     } else {
       correct <- maxFreq
     }
-    
   }
   
   guess <- correct[which(correct$Weight == max(correct$Weight)),]$Word[1]
@@ -72,3 +75,4 @@ correctWord <- function(word) {
 }
 
 words <- findNonWordErrors('althingi_errors/095.csv', TRUE)
+
