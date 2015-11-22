@@ -1,5 +1,5 @@
 ############################################################################
-# This file handles all the preparation, i.e. importing libraries, generating
+# This script handles all the preparation, i.e. importing libraries, generating
 # dictionaries and then runs the program itself.
 # This is the only file you need to source.
 #
@@ -8,17 +8,15 @@
 # Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
 ############################################################################
 
-# Package manager. Installs required packages if they're not already installed.
-pacMan <- function() {
-  packages <- c("data.table", "plyr")
-  if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
-    install.packages(setdiff(packages, rownames(installed.packages())))  
-  }
-}
-
 # TRUE iff object exists in Global Environment
 objectExists <- function(object) {
   return(exists(as.character(substitute(object))))
+}
+
+# Package manager. Installs required packages if they're not already installed.
+packages <- c("data.table", "plyr")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())))  
 }
 
 # Checks for existance of all the dictionaries needed.
@@ -26,36 +24,28 @@ objectExists <- function(object) {
 # files, but of these .csv files don't exist they're generated.
 # Nb: The scripts for generating the .csv files are time consuming.
 # (The .csv files should be in the project dir)
-generateDicts <- function() {
-  if (!objectExists(dictionary))
-    if (!file.exists('dictionary.csv'))
-      source('CreateDictionary.R')
-    else 
-      dictionary <- read.csv('dictionary.csv', stringsAsFactors = FALSE, encoding='UTF-8')
-  
-  if (!objectExists(dictionaryLemma) | 
-      !objectExists(dictionaryTag) | 
-      !objectExists(dictionaryLink))
-    if (!file.exists('dictionaries/dictionarylemma.csv', 'dictionaries/dictionarytag.csv', 'dictionaries/dictionarylink.csv'))
-      source('CreateRealDictionary.R')
-    else {
-      if (!dictionaryLemma) dictionaryLemma <- read.csv('dictionaries/dictionarylemma.csv', stringsAsFactors = FALSE, encoding='UTF-8')
-      if (!dictionaryTag) dictionaryTag <- read.csv('dictionaries/dictionarytag.csv', stringsAsFactors = FALSE, encoding='UTF-8')
-      if (!dictionaryLink) dictionaryLink <- read.csv('dictionaries/dictionarylink.csv', stringsAsFactors = FALSE, encoding='UTF-8')
-    }
+if (!objectExists(dictionary)) {
+  if (!file.exists('dictionary.csv'))
+    source('CreateDictionary.R')
+  else 
+    dictionary <- read.csv('dictionary.csv', stringsAsFactors = FALSE, encoding='UTF-8')
 }
+
+if (!objectExists(dictionaryLemma) | 
+    !objectExists(dictionaryTag) | 
+    !objectExists(dictionaryLink)) {
+  if (!file.exists('dictionarylemma.csv', 'dictionarytag.csv', 'dictionarylink.csv')) {
+    source('CreateRealDictionary.R')
+  }
+  else {
+    if (!objectExists(dictionaryLemma)) dictionaryLemma <- read.csv('dictionarylemma.csv', stringsAsFactors = FALSE, encoding='UTF-8')
+    if (!objectExists(dictionaryTag)) dictionaryTag <- read.csv('dictionarytag.csv', stringsAsFactors = FALSE, encoding='UTF-8')
+    if (!objectExists(dictionaryLink)) dictionaryLink <- read.csv('dictionarylink.csv', stringsAsFactors = FALSE, encoding='UTF-8')
+  }
+}
+source('CreateSizeDictinaries.R')
 
 # The spelling corrector checks for both non word errors
 # and real word errors.
-runSpellingCorrector <- function() {
-  source('NonWordErrors.R')
-  source('RealWordErrors.R')
-}
-
-main <- function() {
-  pacMan()
-  generateDicts()
-  runSpellingCorrector()
-}
-
-main()
+source('NonWordErrors.R')
+source('RealWordErrors.R')

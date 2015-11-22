@@ -29,14 +29,12 @@ findNonWordErrors <- function(data, csv=FALSE) {
 }
 
 correctWord <- function(word) {
-  
   word <- tolower(word)
   
   if(!grepl('^[[:alpha:]]+$', word)){
     return(word)
   }
   size <- nchar(word)
-  
   currentDictionary <- get(paste0("dictionary", size))
   
   index <- match(word, currentDictionary$Word)
@@ -49,10 +47,8 @@ correctWord <- function(word) {
   } else {
     currentDictionary = rbind(currentDictionary, data.frame(Word = word, Count = 100, stringsAsFactors = FALSE))
   }
-  
   editDistDf <- data.frame(currentDictionary$Word, matrix(adist(word, currentDictionary$Word), byrow=T), currentDictionary$Count, stringsAsFactors = FALSE)
   colnames(editDistDf) <- c('Word', 'Adist', 'Count')
-  
   for (j in 0:2) {
     maxFreq <- editDistDf[which(editDistDf$Adist == j),]
     maxFreq <- maxFreq[which(maxFreq$Count == max(maxFreq$Count)),]
@@ -64,7 +60,6 @@ correctWord <- function(word) {
       correct <- maxFreq
     }
   }
-  
   guess <- correct[which(correct$Weight == max(correct$Weight)),]$Word[1]
 
   return(guess)
