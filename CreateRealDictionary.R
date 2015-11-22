@@ -3,7 +3,7 @@
 # creates a context sensative dictionaries. Creates three dictionaries
 # for lemma, tag and links.
 #
-# Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
+# Authors: Kjartan Marteinsson, Snorri Agust Snorrason, Tumi Snaer Gislason.
 ############################################################################
 library(plyr)
 library(data.table)

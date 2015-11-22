@@ -1,7 +1,7 @@
 ############################################################################
 # Corrects non-word errors in a text.
 #
-# Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
+# Authors: Kjartan Marteinsson, Snorri Agust Snorrason, Tumi Snaer Gislason.
 ############################################################################
 library(data.table)
 

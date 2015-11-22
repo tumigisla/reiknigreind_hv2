@@ -1,7 +1,7 @@
 ############################################################################
 # Finds and correct word errors (real and non) in a text.
 #
-# Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
+# Authors: Kjartan Marteinsson, Snorri Agust Snorrason, Tumi Snaer Gislason.
 ############################################################################
 library(plyr)
 library(data.table)
@@ -26,6 +26,8 @@ findRealWordErrors <- function(data, csv=FALSE) {
   dictionaryLink <- data.table(dictionaryLink)
   setkey(dictionaryLink)
   
+  print(nrow(data))
+  return()
   for(i in 2:5002) {
     # Set word to check to lowercase, since dictionaries in lower case.
     data$Word[i + 1] <- tolower(data$Word[i + 1])
@@ -137,4 +139,4 @@ findNonWordError <- function(word) {
   return(word)
 }
 
-#words <- findRealWordErrors('althingi_errors/079.csv', TRUE)
+words <- findRealWordErrors('althingi_errors/079.csv', TRUE)

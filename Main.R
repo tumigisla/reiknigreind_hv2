@@ -5,7 +5,7 @@
 #
 # Make sure you set the working directory to the source file location!
 #
-# Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
+# Authors: Kjartan Marteinsson, Snorri Agust Snorrason, Tumi Snaer Gislason.
 ############################################################################
 
 # TRUE iff object exists in Global Environment
@@ -44,6 +44,13 @@ if (!objectExists(dictionaryLemma) |
     if (!objectExists(dictionaryLink)) dictionaryLink <- read.csv('dictionarylink.csv', stringsAsFactors = FALSE, encoding='UTF-8')
   }
 }
+
+# For converting icelandic letters to byte order marks when comparing
+lookup <- data.frame(
+            c('á', 'é', 'í', 'ó', 'ú', 'ý', 'ð', 'þ', 'æ', 'ö'), 
+            c('<c3><al>', '<c3><a9>', '<c3><ad>', '<c3><b3>', '<c3><ba>', '<c3><bd>', '<c3><b0>', '<c3><be>', '<c3><a6>', '<c3><b6>')
+          )
+colnames(lookup) <- c('original', 'convert')
 
 # Create dictionaries for each word length range faster non-word corrections.
 for (i in 1:max(nchar(dictionary$Word))) {
