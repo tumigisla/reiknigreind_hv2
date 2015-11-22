@@ -3,6 +3,7 @@
 #
 # Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
 ############################################################################
+library(data.table)
 
 # data is the csv file to find non word errors in
 findNonWordErrors <- function(data, csv=FALSE) {
@@ -17,7 +18,7 @@ findNonWordErrors <- function(data, csv=FALSE) {
   data["OurGuess"] <- ""
   
   wordData <- unique(data$Word)
-  
+  print(length(wordData))
   for (i in 1:length(wordData)){
     print(i)
     guess <- correctWord(wordData[[i]])
@@ -68,3 +69,5 @@ correctWord <- function(word) {
 
   return(guess)
 }
+
+words <- findNonWordErrors('althingi_errors/095.csv', TRUE)
