@@ -1,4 +1,3 @@
-
 ############################################################################
 # data is the csv file to find non word errors in
 #
@@ -39,7 +38,7 @@ correctWord <- function(word) {
   
   index <- match(word, currentDictionary$Word)
   if(!is.na(index)) {
-    if(currentDictionary[index,]$Count > 500) {
+    if(currentDictionary[index,]$Count > 1000) {
       return(word)
     } else if(currentDictionary[index,]$Count < 100) {
       currentDictionary[index,]$Count = 100
@@ -54,14 +53,13 @@ correctWord <- function(word) {
   for (j in 0:2) {
     maxFreq <- editDistDf[which(editDistDf$Adist == j),]
     maxFreq <- maxFreq[which(maxFreq$Count == max(maxFreq$Count)),]
-    maxFreq <- data.frame(maxFreq$Word, (maxFreq$Count/(100^j)), stringsAsFactors = FALSE)
+    maxFreq <- data.frame(maxFreq$Word, (maxFreq$Count/(50^j)), stringsAsFactors = FALSE)
     colnames(maxFreq) <- c('Word', 'Weight')
     if(exists('correct')) {
       correct <- rbind(correct, maxFreq)
     } else {
       correct <- maxFreq
     }
-    
   }
   
   guess <- correct[which(correct$Weight == max(correct$Weight)),]$Word[1]
@@ -69,4 +67,4 @@ correctWord <- function(word) {
   return(guess)
 }
 
-words <- findNonWordErrors('althingi_errors/080.csv', TRUE)
+words <- findNonWordErrors('althingi_errors/095.csv', TRUE)
