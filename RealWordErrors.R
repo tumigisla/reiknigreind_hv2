@@ -26,7 +26,6 @@ findRealWordErrors <- function(data, csv=FALSE) {
     data$Word[i + 1] <- tolower(data$Word[i + 1])
     data$Lemma[i + 1] <- tolower(data$Lemma[i + 1])
     data[i + 1,] <- findNonWordError(data[i + 1,])
-    print(paste0(data$Word[i-1], " ", data$Word[i], " ", data$Word[i + 1]))
     before <- dictionaryLemma[which(dictionaryLemma$Lemma == data$Lemma[i - 1] & dictionaryLemma$nextLemma == data$Lemma[i]),]$Count
     after <- dictionaryLemma[which(dictionaryLemma$Lemma == data$Lemma[i] & dictionaryLemma$nextLemma == data$Lemma[i + 1]),]$Count
     
