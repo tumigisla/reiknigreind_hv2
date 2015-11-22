@@ -3,7 +3,7 @@
 # creates a dictionary of the words used. The dictionary contains the
 # words used and the frequency of usage for each.
 #
-# Authors: Kjartan Marteinsson, Snorri Ágúst Snorrason, Tumi Snær Gíslason.
+# Authors: Kjartan Marteinsson, Snorri Agust Snorrason, Tumi Snaer Gislason.
 ############################################################################
 library(plyr)
 

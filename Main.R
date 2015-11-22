@@ -34,7 +34,8 @@ if (!objectExists(dictionary)) {
 if (!objectExists(dictionaryLemma) | 
     !objectExists(dictionaryTag) | 
     !objectExists(dictionaryLink)) {
-  if (!file.exists('dictionarylemma.csv', 'dictionarytag.csv', 'dictionarylink.csv')) {
+  filesExist <-file.exists('dictionarylemma.csv', 'dictionarytag.csv', 'dictionarylink.csv') 
+  if (FALSE %in% filesExist) {
     source('CreateRealDictionary.R')
   }
   else {
@@ -43,6 +44,9 @@ if (!objectExists(dictionaryLemma) |
     if (!objectExists(dictionaryLink)) dictionaryLink <- read.csv('dictionarylink.csv', stringsAsFactors = FALSE, encoding='UTF-8')
   }
 }
+dictionaryLemma <- apply(dictionaryLemma, 1, function(e) { iconv(e, from = "UTF-8", to="ASCII", sub="byte")})
+dictionaryLemma <- data.frame(t(dictionaryLemma), stringsAsFactors = FALSE)
+
 # Create dictionaries for each word length range faster non-word corrections.
 for (i in 1:max(nchar(dictionary$Word))) {
   assign(paste0("dictionary", i), dictionary[which(nchar(dictionary$Word) < i + 2 & nchar(dictionary$Word) > i - 2),])

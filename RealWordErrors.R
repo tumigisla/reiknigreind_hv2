@@ -137,4 +137,4 @@ findNonWordError <- function(word) {
   return(word)
 }
 
-words <- findRealWordErrors('althingi_errors/079.csv', TRUE)
+#words <- findRealWordErrors('althingi_errors/079.csv', TRUE)
