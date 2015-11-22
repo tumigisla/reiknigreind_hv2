@@ -41,7 +41,7 @@ findRealWordErrors <- function(data, csv=FALSE) {
     possibleTags <- possibleTags[order(possibleTags$Prob, decreasing = TRUE),]
     possibleTags <- head(possibleTags, 100)
     possibleLemmas <- findCandidates(dictionaryLemma, data$Lemma[i - 1], data$Lemma[i + 1])
-
+    
     linkedDict <- dictionaryLink[which(dictionaryLink$Tag %in% possibleTags$Candidates & dictionaryLink$Lemma %in% possibleLemmas$Candidates),]
     linkedDict['Prob'] <- ''
     linkedDictLength <- nrow(linkedDict)
