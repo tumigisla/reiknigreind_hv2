@@ -25,7 +25,7 @@ if(exists('dictionaryLink')){
 }
 # Read all the data files and create a dictionary out of the words
 # contained in them.
-for (name in files[1:15]) {
+for (name in files) {
   print(name)
   new <- read.csv(paste0('althingi_tagged/', name), encoding = 'UTF-8', stringsAsFactors = FALSE)
   # Remove all non letter words.
@@ -33,28 +33,28 @@ for (name in files[1:15]) {
   # Edit all words to lower case.
   new <- data.frame(lapply(new, tolower), stringsAsFactors = FALSE)
   new <- data.table(new)
-  #new$nextTag <- c(new$Tag[2:(length(new$Tag))], NA)
+  new$nextTag <- c(new$Tag[2:(length(new$Tag))], NA)
   new$nextLemma <- c(new$Lemma[2:(length(new$Lemma))], NA)
-  #newTag <- data.table(count(new, c('Tag', 'nextTag')))
+  newTag <- data.table(count(new, c('Tag', 'nextTag')))
   newLemma <- data.table(count(new, c('Lemma', 'nextLemma')))
-  #new$nextTag <- NULL
+  new$nextTag <- NULL
   new$nextLemma <- NULL
   newLink <- unique(new)
   if(exists('dictionaryLemma')) {
-    #dictionaryTag <- merge(dictionaryTag, newTag, by=c('Tag', 'nextTag'), all=TRUE)
+    dictionaryTag <- merge(dictionaryTag, newTag, by=c('Tag', 'nextTag'), all=TRUE)
     dictionaryLemma <- merge(dictionaryLemma, newLemma, by=c('Lemma', 'nextLemma'), all=TRUE)
     dictionaryLink <- merge(dictionaryLink, newLink, by=c('Word', 'Lemma', 'Tag'), all=TRUE)
-    #dictionaryTag <- data.table(dictionaryTag$Tag, dictionaryTag$nextTag, rowSums(dictionaryTag[, c(3,4), with=FALSE], na.rm = TRUE))
+    dictionaryTag <- data.table(dictionaryTag$Tag, dictionaryTag$nextTag, rowSums(dictionaryTag[, c(3,4), with=FALSE], na.rm = TRUE))
     dictionaryLemma <- data.table(dictionaryLemma$Lemma, dictionaryLemma$nextLemma, rowSums(dictionaryLemma[, c(3,4), with=FALSE], na.rm = TRUE))
-    #colnames(dictionaryTag) <- c('Tag', 'nextTag', 'Count')
+    colnames(dictionaryTag) <- c('Tag', 'nextTag', 'Count')
     colnames(dictionaryLemma) <- c('Lemma', 'nextLemma', 'Count')
   } else {
-    #dictionaryTag <- newTag
+    dictionaryTag <- newTag
     dictionaryLemma <- newLemma
     dictionaryLink <- newLink
   }
 }
 
 write.table(dictionaryLink, file='dictionarylink1.csv', sep=',', fileEncoding = 'UTF-8')
-#write.table(dictionaryTag, file='dictionarytag1.csv', sep=',', fileEncoding = 'UTF-8')
+write.table(dictionaryTag, file='dictionarytag1.csv', sep=',', fileEncoding = 'UTF-8')
 write.table(dictionaryLemma, file='dictionarylemma1.csv', sep=',', fileEncoding = 'UTF-8')

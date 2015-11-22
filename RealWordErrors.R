@@ -24,7 +24,8 @@ findRealWordErrors <- function(data, csv=FALSE) {
   dictionaryLink <- data.table(dictionaryLink)
   
   for(i in 2:50) {
-    data$Word[i + 1] <- correctWord(data$Word[i + 1])
+    data[i + 1,] <- findNonWordError(data[i + 1,])
+    print(data$Lemma[i + 1])
     print(paste0(data$Word[i-1], " ", data$Word[i], " ", data$Word[i + 1]))
     before <- dictionaryLemma[which(dictionaryLemma$Lemma == data$Lemma[i - 1] & dictionaryLemma$nextLemma == data$Lemma[i]),]$Count
     after <- dictionaryLemma[which(dictionaryLemma$Lemma == data$Lemma[i] & dictionaryLemma$nextLemma == data$Lemma[i + 1]),]$Count
@@ -43,11 +44,12 @@ findRealWordErrors <- function(data, csv=FALSE) {
     linkedDict <- dictionaryLink[which(dictionaryLink$Tag %in% possibleTags$Candidates & dictionaryLink$Lemma %in% possibleLemmas$Candidates),]
     linkedDict['Prob'] <- ''
     linkedDictLength <- nrow(linkedDict)
+    class <- substr(data$Tag[i], 1, 1)
     for (j in 1:linkedDictLength) {
       tagProb <- possibleTags$Prob[possibleTags$Candidates == linkedDict$Tag[j]]
       lemmaProb <- possibleLemmas$Prob[possibleLemmas$Candidates == linkedDict$Lemma[j]]
       prob <- tagProb + lemmaProb
-      if (substr(linkedDict$Tag, 1, 1) != substr(data$Tag[i], 1, 1)) {
+      if (substr(linkedDict$Tag[j], 1, 1) != class) {
         prob <- prob + log10(0.1)
       }
       dist <- adist(linkedDict$Word[j], data$Word[i])[[1]]
@@ -76,6 +78,25 @@ findCandidates <- function(dictionary, preciding, following) {
   candidates <- data.table(candidates$join, candidates$Count.x + candidates$Count.y)
   colnames(candidates) <- c('Candidates', 'Prob')
   return(candidates)
+}
+
+findNonWordError <- function(word) {
+  guess <- correctWord(word$Word)
+  if (guess != word$Word) {
+    word$Word <- guess
+    possibilities <- dictionaryLink[which(dictionaryLink$Word == word$word),]
+    if (nrow(possibilities) > 1) {
+      possibilitiesTags <- possibilities[which(possibilities$Tag == word$Tag),]
+      if (nrow(possibilitiesTags) == 0) {
+        word$Lemma <- possibilities$Lemma[1]
+      } else {
+        word$Lemma <- possibilitiesTags$Lemma[1]
+      }
+    } else if (nrow(possibilities) == 1) {
+      word$Lemma <- possibilities$Lemma[1]
+    }
+  }
+  return(word)
 }
 
 words <- findRealWordErrors('althingi_errors/079.csv', TRUE)
