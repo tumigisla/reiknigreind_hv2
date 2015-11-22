@@ -138,3 +138,6 @@ findNonWordError <- function(word) {
 }
 
 words <- findRealWordErrors('althingi_errors/079.csv', TRUE)
+nCorrectGuesses <- sum(as.character(words$OurGuess) == as.character(words$CorrectWord) & words$CorrectWord != '', na.rm = TRUE)
+nTotalGuesses <- sum(words$CorrectWord != '' & words$OurGuess != '', na.rm = TRUE)
+performance <- nCorrectGuesses / nTotalGuesses
