@@ -21,27 +21,26 @@ findRealWordErrors <- function(data, csv=FALSE) {
   dictionaryTag <- data.table(dictionaryTag)
   dictionaryLemma <- data.table(dictionaryLemma)
   dictionaryLink <- data.table(dictionaryLink)
+  setkey(dictionaryLink)
   
   for(i in 2:nrow(data)) {
     data$Word[i + 1] <- tolower(data$Word[i + 1])
     data$Lemma[i + 1] <- tolower(data$Lemma[i + 1])
     data[i + 1,] <- findNonWordError(data[i + 1,])
+    print(i)
     print(paste0(data$Word[i-1], " ", data$Word[i], " ", data$Word[i + 1]))
     before <- dictionaryLemma[which(dictionaryLemma$Lemma == data$Lemma[i - 1] & dictionaryLemma$nextLemma == data$Lemma[i]),]$Count
     after <- dictionaryLemma[which(dictionaryLemma$Lemma == data$Lemma[i] & dictionaryLemma$nextLemma == data$Lemma[i + 1]),]$Count
-    
     if(length(before) & length(after)) {
       if(before > 10 & after > 10) {
         data$OurGuess[i] <- data$Word[i]
         next
       }
     }
-    
     possibleTags <- findCandidates(dictionaryTag, data$Tag[i - 1], data$Tag[i + 1])
     possibleTags <- possibleTags[order(possibleTags$Prob, decreasing = TRUE),]
     possibleTags <- head(possibleTags, 100)
     possibleLemmas <- findCandidates(dictionaryLemma, data$Lemma[i - 1], data$Lemma[i + 1])
-
     linkedDict <- dictionaryLink[which(dictionaryLink$Tag %in% possibleTags$Candidates & dictionaryLink$Lemma %in% possibleLemmas$Candidates),]
     linkedDict['Prob'] <- ''
     linkedDictLength <- nrow(linkedDict)
