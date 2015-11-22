@@ -43,8 +43,10 @@ if (!objectExists(dictionaryLemma) |
     if (!objectExists(dictionaryLink)) dictionaryLink <- read.csv('dictionarylink.csv', stringsAsFactors = FALSE, encoding='UTF-8')
   }
 }
-source('CreateSizeDictinaries.R')
-
+# Create dictionaries for each word length range faster non-word corrections.
+for (i in 1:max(nchar(dictionary$Word))) {
+  assign(paste0("dictionary", i), dictionary[which(nchar(dictionary$Word) < i + 2 & nchar(dictionary$Word) > i - 2),])
+}
 # The spelling corrector checks for both non word errors
 # and real word errors.
 source('NonWordErrors.R')
